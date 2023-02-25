@@ -1,0 +1,31 @@
+pipeline {
+    // ビルドの実行環境。登録されていれば別のマシンで動くagentにジョブを実行させる場合もある
+    agent any
+
+    parameters {
+        string (name: 'branch', defaultValue: 'develop')
+        string (name: 'url',    defaultValue: 'https://github.com/ofsda/gosample')
+    }
+
+    // 処理を「ステージ」として段階的に定義する。ビルド結果はステージごとに視覚化される
+    stages {
+
+        // ステージ:clone として定義
+        stage('clone') {
+            // ステージごとに実施する処理をsteps内に定義。stepsは1つだけ
+            steps {
+                // parametersを定義している場合、${params.xxx}で参照可能
+                git branch: "${params.branch}",
+                url: "${params.url}"
+            }
+        }
+
+        // ステージ: test として定義
+        stage('test') {
+            // ステージごとに実施する処理をsteps内に定義。stepsは1つだけ
+            steps {
+                sh "/usr/local/go/bin/go test ./..."
+            }
+        }
+    }
+}
